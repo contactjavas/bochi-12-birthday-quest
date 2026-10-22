@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes relicCenterSave {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+    filter: drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 60px rgba(245, 158, 11, 0.95));
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 45px rgba(245, 158, 11, 0.8));
+  }
+  75% {
+    opacity: 0.9;
+    transform: translate(32vw, -36vh) scale(0.45);
+    filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.6));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(42vw, -44vh) scale(0.1);
+    filter: drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+  }
+}
+
+.animate-relicCenterSave {
+  animation: relicCenterSave 1.6s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-inventoryFly {
+  animation: inventoryFly 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Pulley Animations for Game 3 */
+@keyframes spinClockwise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinErratic {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(120deg); }
+  45% { transform: rotate(90deg); }
+  65% { transform: rotate(220deg); }
+  85% { transform: rotate(190deg); }
+  95% { transform: rotate(260deg); }
+  100% { transform: rotate(250deg); }
+}
+
+@keyframes beltMove {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.anim-spin-fast {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spinClockwise 0.45s linear infinite;
+}
+
+.anim-spin-med {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spinClockwise 0.9s linear infinite;
+}
+
+.anim-spin-slow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spinClockwise 2.2s linear infinite;
+}
+
+.anim-spin-erratic {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spinErratic 2.5s ease-out forwards;
+}
+
+.anim-belt-move {
+  animation: beltMove 0.35s linear infinite;
+}
+
+/* Door and Grand Sanctum Animations */
+@keyframes doorOpenLeft {
+  0% { transform: translateX(0%) scaleX(1); }
+  100% { transform: translateX(-96%) scaleX(0.2); opacity: 0.15; }
+}
+
+@keyframes doorOpenRight {
+  0% { transform: translateX(0%) scaleX(1); }
+  100% { transform: translateX(96%) scaleX(0.2); opacity: 0.15; }
+}
+
+.anim-door-left-open {
+  animation: doorOpenLeft 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.anim-door-right-open {
+  animation: doorOpenRight 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Floating Party Elements */
+@keyframes floatUpGentle {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.85; }
+  50% { transform: translateY(-18px) rotate(3deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 0.85; }
+}
+
+.anim-float-balloon {
+  animation: floatUpGentle 3.5s ease-in-out infinite;
+}
+
+/* Papyrus Parchment Styling */
+.papyrus-paper {
+  background-color: #f7eed8;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, rgba(224,204,166,0.3) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(160,120,60,0.03) 3px, transparent 4px);
+  color: #2e1a0d;
+  box-shadow: 
+    0 0 50px rgba(0,0,0,0.85),
+    inset 0 0 40px rgba(139, 87, 42, 0.35),
+    inset 0 0 10px rgba(92, 54, 21, 0.5);
+}
+
+/* Custom Scrollbar for Inventory Drawer */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0d14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f293d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00e5ff;
+}

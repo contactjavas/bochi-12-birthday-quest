@@ -1,0 +1,77 @@
+# Project Rules: Bochi 12th Birthday Surprise (ARG Terminal Game)
+
+## 1. Project Overview & Vision
+- **Tujuan**: Proyek kejutan ulang tahun untuk Bochi berupa aplikasi game teka-teki misterius (*sophisticated ARG / Hacker Terminal style*) yang terbuka otomatis ketika laptop dinyalakan (*first boot*) atau di-unlock (*after sleep/lock*).
+- **Nuansa & Gaya**: *Terminal Hacker ARG*. Layar hitam konsol misterius, teks monospaced, typing/tele-type effect, audio SFX ambient cyber/terminal typing berulang otomatis (*autoplay*), glitch effect, dan interaksi CLI (Command Line Interface).
+- **Target Tingkat Kesulitan**: Teka-teki logika, matematika, dan cipher setara anak usia 15 tahun (menantang, logis, tidak kekanak-kanakan, menguji analisis dan penalaran).
+- **Ending**: Setelah semua teka-teki terpecahkan, layar menampilkan de-enkripsi pesan rahasia kejutan ulang tahun, video/surat ucapan, dan instruksi penemuan hadiah fisik.
+
+---
+
+## 2. Technology Stack & Architecture
+- **Desktop Runtime**: **Electron**
+  - Mode: Fullscreen Kiosk (`kiosk: true`, `fullscreen: true`, `alwaysOnTop: true`, `frame: false`).
+  - Flags: `--autoplay-policy=no-user-gesture-required` untuk memastikan sound effects & BGM ambient berbunyi otomatis tanpa menunggu klik pertama.
+  - Windows Integration: Script PowerShell / Task Scheduler untuk pendaftaran trigger:
+    1. *At log on* (saat booting & login Windows).
+    2. *On workstation unlock* (Event ID 4801 / lock-unlock screen).
+- **Frontend Framework**: **SolidJS** (Vite + TypeScript)
+  - Menggunakan SolidJS untuk performa tinggi, fine-grained reactivity, dan bundle size ringan.
+- **Styling**: Tailwind CSS + Custom retro/cyber CRT scanline & glitch effect CSS.
+- **Audio Engine**: Howler.js / Web Audio API terintegrasi dengan Electron renderer process.
+- **State Management**: SolidJS Stores/Signals untuk state progression puzzle (persistent progress via local encrypted storage agar progres tidak hilang jika app restart).
+
+---
+
+## 3. Directory Structure Convention
+```text
+ultah-12-bochi/
+├── .windsurfrules               # Project-level rules (dokumen ini)
+├── scripts/
+│   ├── install-autostart.ps1   # Script otomatisasi Windows Task Scheduler
+│   └── uninstall-autostart.ps1 # Script pembersihan autostart
+├── src/
+│   ├── main/                   # Electron Main Process
+│   │   ├── index.ts            # Window creation, kiosk config, IPC handlers
+│   │   └── autostart.ts        # Helper registry/task scheduler
+│   ├── preload/                # Electron Preload Scripts
+│   │   └── index.ts            # Context bridge aman (audio triggers, exit bridge)
+│   └── renderer/               # SolidJS Frontend
+│       ├── assets/             # Audio (SFX, ambient BGM), fonts, scanlines
+│       ├── components/         # Terminal, CRTOverlay, TextStreamer, PromptInput
+│       ├── puzzles/            # Modul logika puzzle (math, logic, ciphers)
+│       │   ├── level1_boot/
+│       │   ├── level2_math/
+│       │   ├── level3_cipher/
+│       │   └── level4_final/
+│       ├── stores/             # State puzzle & audio status
+│       ├── App.tsx
+│       └── index.tsx
+├── package.json
+└── vite.config.ts
+```
+
+---
+
+## 4. Puzzle & Gameplay Guidelines (Level ~15 Tahun)
+1. **Level 1: System Anomaly & Diagnostic (Cryptography / Encoding)**
+   - *Premis*: Layar terminal menampilkan fake corrupted system memory dump.
+   - *Challenge*: Teks terenkripsi (kombinasi Hex / Binary / Caesar Cipher bertingkat). Bochi harus membaca petunjuk tersembunyi pada header log untuk menemukan shift key dan mengetik perintah diagnostik yang benar.
+2. **Level 2: The Quantum Core / Mathematical Sequencing (Math & Logic)**
+   - *Premis*: Sistem meminta kalibrasi frekuensi inti.
+   - *Challenge*: Barisan bilangan tingkat dua / modulo arithmetic / persamaan rekursif (misal deret khusus atau koordinat sistem berbasis sistem persamaan linear dua variabel) yang membutuhkan hitungan kertas-dan-pensil.
+3. **Level 3: Protocol Breach & Logic Gates (Computer Science & Logic)**
+   - *Premis*: Firewall internal aktif, membutuhkan kombinasi switch logic (AND, OR, XOR, NOT) dan riddle verbal berbasis deduksi logika (Einstein's riddle mini style).
+4. **Level 4: Master Decryption Key (Final Surprise)**
+   - *Premis*: Menggabungkan jawaban token dari Level 1-3 untuk menyusun private key.
+   - *Reward*: Terminal melakukan sequence "ACCESS GRANTED", suara alarm berganti menjadi musik perayaan/nostalgia, efek visual bertransisi dari monochrome terminal ke visual interaktif surat ulang tahun dan pesan spesial dari Kak Sherley.
+
+---
+
+## 5. Development & Code Quality Rules
+- **No Direct DOM Manipulation**: Gunakan deklarasi reaktif SolidJS (`createSignal`, `createMemo`, `createEffect`, `Show`, `For`).
+- **Autoplay Sound Guarantees**: Seluruh audio cue (keystroke sound, error buzzer, ambient drone, success fanfare) harus dimuat di memory renderer dengan fallback handling.
+- **Strict Typing**: Seluruh interaksi IPC antara Main dan Renderer wajib memiliki TypeScript interface yang jelas di `src/preload`.
+- **Keyboard-First Interface**: Semua kontrol game harus bisa dimainkan menggunakan keyboard (Enter, Tab, Arrow Keys, typing commands) selayaknya terminal sungguhan.
+- **Fail-safe & Developer Bypass**:
+  - Meskipun pengguna akhir (Bochi) harus menyelesaikan puzzle untuk menutup layar, sediakan environment variable / dev shortcut rahasia (misal kombinasi khusus dengan hash validation) hanya untuk keperluan testing pengembang.
