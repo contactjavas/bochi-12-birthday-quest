@@ -1,7 +1,8 @@
-import { createSignal, onMount, Switch, Match, For, Show } from 'solid-js';
+import { createSignal, Switch, Match, For, Show } from 'solid-js';
 import { sound } from './utils/sound';
 import { currentStage, setCurrentStage, completedStages, resetGameProgress } from './stores/gameState';
-import { Game1Rebus } from './puzzles/Game1Rebus';
+import { LandingPage } from './components/LandingPage';
+import { Game1Robus } from './puzzles/Game1Robus';
 import { Game2LogicPanel } from './puzzles/Game2LogicPanel';
 import { Game3Pulley } from './puzzles/Game3Pulley';
 import { Game4Exponential } from './puzzles/Game4Exponential';
@@ -16,11 +17,13 @@ import { InventorySaveNotification } from './components/InventorySaveNotificatio
 export function App() {
   const [isMuted, setIsMuted] = createSignal(sound.getMuted());
   const [showDevControls, setShowDevControls] = createSignal(false);
+  const [hasEntered, setHasEntered] = createSignal(false);
 
-  onMount(() => {
-    // Start ambient mystery audio
+  function handleEnterGame() {
+    sound.stopMorseLoop();
+    setHasEntered(true);
     sound.startAmbientDrone();
-  });
+  }
 
   function toggleMute() {
     const muted = sound.toggleMute();
@@ -28,7 +31,7 @@ export function App() {
   }
 
   const stageTitles = [
-    'Rebus Kata',
+    'Robus Kata',
     'Sidang Logika',
     'Katrol Mekanik',
     'Kristal Daya',
@@ -41,8 +44,13 @@ export function App() {
   return (
     <div
       class="min-h-screen w-full bg-[#0a0d14] text-white flex flex-col font-sans select-none relative overflow-x-hidden"
-      onClick={() => sound.startAmbientDrone()}
+      onClick={() => hasEntered() && sound.startAmbientDrone()}
     >
+      {/* Golden Landing Page (blocks the game until Bochi enters) */}
+      <Show when={!hasEntered()}>
+        <LandingPage onEnter={handleEnterGame} />
+      </Show>
+
       {/* CRT Scanline & Subtle Vignette Overlay */}
       <div class="pointer-events-none fixed inset-0 z-30 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-40" />
       <div class="pointer-events-none fixed inset-0 z-30 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" />
@@ -184,7 +192,7 @@ export function App() {
       <main class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 flex flex-col justify-center z-10">
         <Switch>
           <Match when={currentStage() === 1}>
-            <Game1Rebus />
+            <Game1Robus />
           </Match>
           <Match when={currentStage() === 2}>
             <Game2LogicPanel />

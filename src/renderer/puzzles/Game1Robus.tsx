@@ -2,13 +2,13 @@ import { createSignal, Show, For } from 'solid-js';
 import { sound } from '../utils/sound';
 import { completeStage } from '../stores/gameState';
 
-import rebus1Img from '../../../images/Robus 1.png';
-import rebus2Img from '../../../images/Robus 2.png';
-import rebus3Img from '../../../images/Robus 3.png';
-import rebus4Img from '../../../images/Robus 4.png';
-import rebus5Img from '../../../images/Robus 5.png';
+import robus1Img from '../../../images/Robus 1.png';
+import robus2Img from '../../../images/Robus 2.png';
+import robus3Img from '../../../images/Robus 3.png';
+import robus4Img from '../../../images/Robus 4.png';
+import robus5Img from '../../../images/Robus 5.png';
 
-interface IRebusItem {
+interface IRobusItem {
   id: number;
   title: string;
   hint: string;
@@ -16,17 +16,17 @@ interface IRebusItem {
   imageUrl: string;
 }
 
-export function Game1Rebus() {
+export function Game1Robus() {
   const [currentIndex, setCurrentIndex] = createSignal(0);
   const [userInput, setUserInput] = createSignal('');
   const [errorMessage, setErrorMessage] = createSignal('');
   const [showHint, setShowHint] = createSignal(false);
   const [isSuccess, setIsSuccess] = createSignal(false);
 
-  const puzzles: IRebusItem[] = [
+  const puzzles: IRobusItem[] = [
     {
       id: 1,
-      title: 'Rebus 1 / 5',
+      title: 'Robus 1 / 5',
       hint: 'Hitung ada berapa banyak kata TAHUN yang tertulis di dalam gambar ini...',
       acceptedAnswers: [
         'ulang tahun 12',
@@ -40,11 +40,11 @@ export function Game1Rebus() {
         'duabelas tahun',
         'ulang tahun dua belas',
       ],
-      imageUrl: rebus1Img,
+      imageUrl: robus1Img,
     },
     {
       id: 2,
-      title: 'Rebus 2 / 5',
+      title: 'Robus 2 / 5',
       hint: 'Dua tangan yang saling memberi dan menerima simbol hati merah...',
       acceptedAnswers: [
         'kasih sayang',
@@ -53,11 +53,11 @@ export function Game1Rebus() {
         'cinta dan kasih sayang',
         'memberi cinta',
       ],
-      imageUrl: rebus2Img,
+      imageUrl: robus2Img,
     },
     {
       id: 3,
-      title: 'Rebus 3 / 5',
+      title: 'Robus 3 / 5',
       hint: 'Hembusan angin meniup huruf-huruf L-I-L-I-N yang biasa dinyalakan di kue ulang tahun...',
       acceptedAnswers: [
         'tiup lilin',
@@ -65,23 +65,23 @@ export function Game1Rebus() {
         'tiupan lilin',
         'tiup lilinnya',
       ],
-      imageUrl: rebus3Img,
+      imageUrl: robus3Img,
     },
     {
       id: 4,
-      title: 'Rebus 4 / 5',
+      title: 'Robus 4 / 5',
       hint: 'Simbol hati (heart) yang posisinya berada di paling bawah / rendah...',
       acceptedAnswers: [
         'rendah hati',
         'merendah hati',
         'hati rendah',
       ],
-      imageUrl: rebus4Img,
+      imageUrl: robus4Img,
     },
     {
       id: 5,
-      title: 'Rebus 5 / 5',
-      hint: 'Kata MIMPI dan LANGIT dengan tanda panah tinggi di antaranya...',
+      title: 'Robus 5 / 5',
+      hint: 'Kata MIMPI dan LANGIT dengan huruf "h" merah di antaranya — dalam fisika, "h" adalah lambang height (ketinggian)...',
       acceptedAnswers: [
         'bermimpi setinggi langit',
         'mimpi setinggi langit',
@@ -89,7 +89,7 @@ export function Game1Rebus() {
         'bermimpi setinggi-tingginya langit',
         'setinggi langit',
       ],
-      imageUrl: rebus5Img,
+      imageUrl: robus5Img,
     },
   ];
 
@@ -138,10 +138,10 @@ export function Game1Rebus() {
       {/* Stage Header */}
       <div class="text-center mb-6">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-mono tracking-widest uppercase mb-2">
-          <span>Game 01 // Ruang Arkana Kata</span>
+          <span>Game 01 // Ruang Relik Kata</span>
         </div>
         <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white font-mono">
-          THE REBUS CRYPTOGRAM
+          THE ROBUS CRYPTOGRAM
         </h2>
         <p class="text-gray-400 text-sm max-w-lg mx-auto mt-1">
           Pecahkan ke-5 teka-teki visual kata dan gambar berikut untuk menguak petunjuk Relic pertama!

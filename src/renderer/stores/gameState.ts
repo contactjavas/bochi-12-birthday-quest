@@ -67,7 +67,15 @@ function loadSavedState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      const stage = Number(parsed?.currentStage);
+      const completed = Array.isArray(parsed?.completedStages)
+        ? parsed.completedStages.filter((s: unknown) => Number.isInteger(s) && (s as number) >= 1 && (s as number) <= 8)
+        : [];
+      return {
+        currentStage: Number.isInteger(stage) && stage >= 1 && stage <= 8 ? stage : 1,
+        completedStages: completed as number[],
+      };
     }
   } catch {
     // ignore

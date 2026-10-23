@@ -166,6 +166,60 @@
   animation: floatUpGentle 3.5s ease-in-out infinite;
 }
 
+/* Landing Page: Golden shimmer sweep across the B monogram */
+@keyframes goldShineSweep {
+  0% { background-position: 220% 0; }
+  100% { background-position: -220% 0; }
+}
+
+.gold-shine-sweep {
+  background-image: linear-gradient(
+    115deg,
+    transparent 32%,
+    rgba(255, 255, 230, 0.85) 46%,
+    rgba(255, 246, 200, 1) 50%,
+    rgba(255, 255, 230, 0.85) 54%,
+    transparent 68%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  animation: goldShineSweep 3.2s ease-in-out infinite;
+}
+
+/* Golden glow pulsing on the monogram */
+@keyframes goldPulse {
+  0%, 100% { filter: drop-shadow(0 0 28px rgba(245, 158, 11, 0.45)) brightness(1); }
+  50% { filter: drop-shadow(0 0 60px rgba(251, 191, 36, 0.8)) brightness(1.12); }
+}
+
+.anim-gold-pulse {
+  animation: goldPulse 3.4s ease-in-out infinite;
+}
+
+/* Twinkling sparkles */
+@keyframes twinkleSparkle {
+  0%, 100% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.15) rotate(25deg); }
+}
+
+.anim-sparkle {
+  animation: twinkleSparkle 2.6s ease-in-out infinite;
+}
+
+/* Slow rotating halo rings */
+@keyframes haloSpin {
+  to { transform: rotate(360deg); }
+}
+
+.anim-halo-spin {
+  animation: haloSpin 28s linear infinite;
+}
+
+.anim-halo-spin-reverse {
+  animation: haloSpin 40s linear infinite reverse;
+}
+
 /* Papyrus Parchment Styling */
 .papyrus-paper {
   background-color: #f7eed8;

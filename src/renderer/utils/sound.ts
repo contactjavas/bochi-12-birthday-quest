@@ -15,6 +15,11 @@ class SoundManager {
   private isAmbientPlaying: boolean = false;
   private ambientDisabled: boolean = false;
 
+  // Morse Code Loop Nodes
+  private morseGain: GainNode | null = null;
+  private morseTimer: any = null;
+  private isMorsePlaying: boolean = false;
+
   private init() {
     if (!this.ctx) {
       const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -27,10 +32,12 @@ class SoundManager {
 
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
-    if (this.isMuted && this.ambientGain) {
-      this.ambientGain.gain.setValueAtTime(0, this.ctx?.currentTime || 0);
-    } else if (!this.isMuted && this.ambientGain && this.isAmbientPlaying) {
-      this.ambientGain.gain.setValueAtTime(0.08, this.ctx?.currentTime || 0);
+    const now = this.ctx?.currentTime || 0;
+    if (this.ambientGain) {
+      this.ambientGain.gain.setValueAtTime(this.isMuted || !this.isAmbientPlaying ? 0 : 0.08, now);
+    }
+    if (this.morseGain) {
+      this.morseGain.gain.setValueAtTime(this.isMuted ? 0 : 0.14, now);
     }
     return this.isMuted;
   }
@@ -455,6 +462,93 @@ class SoundManager {
     this.ambientDroneOsc3 = null;
     this.ambientLfoOsc = null;
     this.isAmbientPlaying = false;
+  }
+
+  // Morse code telegraph loop — spells a message with classic CW beeps on repeat
+  private static readonly MORSE_MAP: Record<string, string> = {
+    A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.',
+    H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.',
+    O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-',
+    V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
+  };
+
+  public startMorseLoop(message: string = 'I LOVE U BOCHI') {
+    this.init();
+    if (!this.ctx) return;
+
+    // Restart cleanly if already running (also re-syncs after AudioContext resume)
+    this.stopMorseLoop();
+    this.isMorsePlaying = true;
+
+    this.morseGain = this.ctx.createGain();
+    this.morseGain.gain.setValueAtTime(this.isMuted ? 0 : 0.14, this.ctx.currentTime);
+    this.morseGain.connect(this.ctx.destination);
+
+    this.scheduleMorsePhrase(message);
+  }
+
+  public stopMorseLoop() {
+    this.isMorsePlaying = false;
+    if (this.morseTimer) {
+      clearTimeout(this.morseTimer);
+      this.morseTimer = null;
+    }
+    if (this.morseGain) {
+      try {
+        this.morseGain.disconnect();
+      } catch {
+        // ignore
+      }
+      this.morseGain = null;
+    }
+  }
+
+  private scheduleMorsePhrase(message: string) {
+    if (!this.isMorsePlaying || !this.ctx || !this.morseGain) return;
+
+    const ctx = this.ctx;
+    const morseOut = this.morseGain;
+    const unit = 0.09; // seconds per morse time-unit
+    const freq = 740; // classic telegraph tone
+    let t = ctx.currentTime + 0.2;
+
+    const words = message.toUpperCase().split(/\s+/).filter(Boolean);
+
+    words.forEach((word, wi) => {
+      for (const ch of word) {
+        const code = SoundManager.MORSE_MAP[ch];
+        if (!code) continue;
+
+        for (const sym of code) {
+          const dur = sym === '.' ? unit : unit * 3;
+
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t);
+
+          // Soft attack/release to avoid clicks
+          gain.gain.setValueAtTime(0.0001, t);
+          gain.gain.linearRampToValueAtTime(1, t + 0.008);
+          gain.gain.setValueAtTime(1, t + dur - 0.008);
+          gain.gain.linearRampToValueAtTime(0.0001, t + dur);
+
+          osc.connect(gain);
+          gain.connect(morseOut);
+          osc.start(t);
+          osc.stop(t + dur + 0.01);
+
+          t += dur + unit; // 1-unit gap between symbols
+        }
+        t += unit * 2; // +2 = 3-unit letter gap
+      }
+      if (wi < words.length - 1) t += unit * 4; // +4 = 7-unit word gap
+    });
+
+    const phraseMs = (t - ctx.currentTime) * 1000;
+    this.morseTimer = setTimeout(() => {
+      if (this.isMorsePlaying) this.scheduleMorsePhrase(message);
+    }, phraseMs + 2800); // pause between repeats
   }
 
   // Papyrus parchment unrolling & wax seal snap sound
