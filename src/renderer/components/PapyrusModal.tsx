@@ -17,61 +17,62 @@ export function PapyrusModal(props: PapyrusModalProps) {
   return (
     <Show when={props.isOpen}>
       <div
-        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 animate-fadeIn"
+        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 animate-fadeIn"
         onClick={handleClose}
       >
-        {/* Full Desktop Unrolled Papyrus Container - Compact, Zero Scroll */}
+        {/* Ancient Egyptian Papyrus Scroll (papyrus.png) with hand-inked relic clues */}
         <div
-          class="w-full max-w-xl max-h-[92vh] flex flex-col items-center relative animate-scaleUp select-none"
+          class="relative animate-scaleUp select-none h-[88vh] max-h-[840px] max-w-[94vw] aspect-[513/598] drop-shadow-[0_20px_50px_rgba(0,0,0,0.85)]"
+          style={{
+            'background-image': "url('/images/papyrus.png')",
+            'background-size': '100% 100%',
+            'background-position': 'center',
+            'background-repeat': 'no-repeat',
+          }}
           onClick={e => e.stopPropagation()}
         >
-          {/* Top Wooden Scroll Spindle */}
-          <div class="w-[96%] h-4 bg-gradient-to-r from-[#3e2412] via-[#8d5427] to-[#3e2412] rounded-full shadow-lg flex items-center justify-between px-2 border border-[#2b180a] z-10">
-            <div class="w-3 h-3 rounded-full bg-amber-400 border border-amber-700 shadow-sm" />
-            <div class="w-3 h-3 rounded-full bg-amber-400 border border-amber-700 shadow-sm" />
-          </div>
-
-          {/* The Weathered Parchment Paper with Torn/Ragged Edges */}
-          <div class="w-[92%] -mt-1 -mb-1 bg-[#f5e9ce] text-[#2c1808] p-5 sm:p-6 shadow-[0_15px_40px_rgba(0,0,0,0.85)] relative border-x-4 border-[#bca37d] flex flex-col justify-between"
-               style={{
-                 "background-image": "radial-gradient(circle at 50% 50%, #fbf3de 0%, #edd9b5 100%), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139,90,43,0.04) 3px, transparent 4px)",
-                 "box-shadow": "inset 0 0 35px rgba(139, 87, 42, 0.35), 0 10px 40px rgba(0,0,0,0.8)",
-               }}
-          >
-            {/* Ragged/Torn paper edge overlays */}
-            <div class="absolute inset-0 pointer-events-none border border-[#a88960]/40 rounded-sm" />
-
-            {/* Close Button top-right */}
+          {/* Inked contents, fitted inside the blank parchment area between the rolls */}
+          <div class="absolute inset-0 pt-[12%] pb-[16%] px-[13%] flex flex-col">
+            {/* Close Button — small inked circle on the parchment edge */}
             <button
               onClick={handleClose}
-              class="absolute top-3 right-3 w-7 h-7 rounded-full bg-[#8d5427]/20 hover:bg-[#8d5427]/40 text-[#42240c] font-serif font-bold text-sm flex items-center justify-center transition-all"
+              class="absolute top-[13%] right-[9%] w-7 h-7 rounded-full border-2 border-[#6b4a1e]/70 text-[#4a2d0e] font-hand font-bold text-sm flex items-center justify-center hover:bg-[#8d6a33]/20 transition-all"
               title="Tutup Papyrus"
             >
               ✕
             </button>
 
-            {/* Hand-drawn Manuscript Header Ornament */}
-            <div class="flex items-center justify-center gap-3 mb-3">
-              <span class="text-xs font-serif text-[#8d5427]">❖ ──────</span>
-              <span class="text-base font-serif font-black tracking-widest text-[#3e2412] uppercase">
-                Titah Arkana
-              </span>
-              <span class="text-xs font-serif text-[#8d5427]">────── ❖</span>
+            {/* Golden B Monogram — the letterhead seal at the top center */}
+            <div class="flex justify-center shrink-0">
+              <img
+                src="/images/monogram-b.png"
+                alt="Monogram B"
+                draggable={false}
+                class="h-24 sm:h-28 w-auto drop-shadow-[0_2px_8px_rgba(90,55,10,0.45)]"
+              />
             </div>
 
-            {/* Hand-drawn Clues in 2 Compact Columns so no vertical scrolling occurs */}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5 my-1">
+            {/* Hand-inked Manuscript Header — spaced well below the letterhead */}
+            <div class="flex items-center justify-center gap-3 mt-6 mb-1 shrink-0">
+              <span class="text-[#8d6a33] text-xs">❖ ─────</span>
+              <span class="font-hand text-lg sm:text-xl font-bold tracking-[0.15em] text-[#3a2408] uppercase whitespace-nowrap">
+                Daftar 7 Relic Kuno
+              </span>
+              <span class="text-[#8d6a33] text-xs">───── ❖</span>
+            </div>
+
+            {/* Hand-drawn Clues — single column, one relic per line */}
+            <div class="flex flex-col mt-1 gap-0.5">
               <For each={CLUES_LIST}>
                 {(clue, idx) => (
-                  <div class="flex items-center gap-2.5 p-2 rounded-lg bg-[#fcf6e8]/75 border border-[#c4a984]/50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                    {/* Hand-drawn sketched relic icon */}
-                    <HandDrawnRelicIcon stage={clue.stage} size={34} />
-                    <div class="flex-1 min-w-0">
-                      <span class="text-[10px] font-mono tracking-wider text-[#8d5427] uppercase block leading-none mb-1">
-                        Arkana {idx() + 1}
+                  <div class="flex items-center gap-3 border-b border-[#8d6a33]/25 py-0.5">
+                    <HandDrawnRelicIcon stage={clue.stage} size={38} />
+                    <div class="flex-1 min-w-0 flex items-baseline gap-2">
+                      <span class="font-hand text-xs tracking-widest text-[#8d6a33] uppercase shrink-0">
+                        Relic {idx() + 1}
                       </span>
-                      <p class="text-xs sm:text-sm font-serif font-bold text-[#2c1808] leading-tight italic">
-                        "{clue.clueText}"
+                      <p class="font-hand text-sm sm:text-base font-bold text-[#2c1808] leading-tight">
+                        {clue.clueText}
                       </p>
                     </div>
                   </div>
@@ -79,18 +80,12 @@ export function PapyrusModal(props: PapyrusModalProps) {
               </For>
             </div>
 
-            {/* Bottom Solemn Inscription: "Jika kamu mencari, maka kamu akan menemukan." */}
-            <div class="mt-4 pt-3 border-t border-[#8d5427]/30 text-center">
-              <p class="font-serif italic font-bold text-sm sm:text-base text-[#3e2412] tracking-wide">
+            {/* Solemn Inscription — pushed to the bottom of the page, above the paper fold */}
+            <div class="shrink-0 pt-1.5 mt-auto border-t-2 border-[#8d6a33]/40 text-center">
+              <p class="font-hand italic font-bold text-sm sm:text-base text-[#3a2408]">
                 "Jika kamu mencari, maka kamu akan menemukan."
               </p>
             </div>
-          </div>
-
-          {/* Bottom Wooden Scroll Spindle */}
-          <div class="w-[96%] h-4 bg-gradient-to-r from-[#3e2412] via-[#8d5427] to-[#3e2412] rounded-full shadow-lg flex items-center justify-between px-2 border border-[#2b180a] z-10">
-            <div class="w-3 h-3 rounded-full bg-amber-400 border border-amber-700 shadow-sm" />
-            <div class="w-3 h-3 rounded-full bg-amber-400 border border-amber-700 shadow-sm" />
           </div>
         </div>
       </div>

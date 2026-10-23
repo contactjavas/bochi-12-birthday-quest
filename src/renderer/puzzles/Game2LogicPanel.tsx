@@ -13,11 +13,11 @@ interface IGuest {
 }
 
 export function Game2LogicPanel() {
-  const [stamps, setStamps] = createSignal<Record<string, { yesterday: StampState; today: StampState }>>({
-    ken: { yesterday: '?', today: '?' },
-    dana: { yesterday: '?', today: '?' },
-    yumi: { yesterday: '?', today: '?' },
-    marcus: { yesterday: '?', today: '?' },
+  const [stamps, setStamps] = createSignal<Record<string, StampState>>({
+    ken: '?',
+    dana: '?',
+    yumi: '?',
+    marcus: '?',
   });
 
   const [selectedDoor, setSelectedDoor] = createSignal<'left' | 'right' | null>(null);
@@ -29,60 +29,80 @@ export function Game2LogicPanel() {
       id: 'ken',
       cam: 'CAM 1',
       name: 'KEN',
-      statement: '"Sifatku hari ini sama persis dengan kemarin."',
+      statement: '"PINTU KIRI adalah pintu yang aman."',
       shirtColor: 'from-pink-500 to-purple-600',
     },
     {
       id: 'dana',
       cam: 'CAM 2',
       name: 'DANA',
-      statement: '"Tepat satu orang di antara kita yang berkata jujur hari ini."',
+      statement: '"Ken berkata jujur hari ini."',
       shirtColor: 'from-cyan-500 to-blue-600',
     },
     {
       id: 'yumi',
       cam: 'CAM 3',
       name: 'YUMI',
-      statement: '"Pernah ada suatu hari di mana kita berempat semuanya berbohong."',
+      statement: '"Hari ini, pembohong lebih banyak daripada yang jujur di antara kami berempat."',
       shirtColor: 'from-amber-400 to-orange-500',
     },
     {
       id: 'marcus',
       cam: 'CAM 4',
       name: 'MARCUS',
-      statement: '"Pernah ada suatu hari di mana tepat satu orang di antara kita yang jujur."',
+      statement: '"Ken sedang berbohong hari ini."',
       shirtColor: 'from-emerald-500 to-teal-700',
     },
   ];
 
-  function toggleStamp(guestId: string, day: 'yesterday' | 'today') {
+  function toggleStamp(guestId: string) {
     sound.playKeyClick();
-    const current = stamps()[guestId][day];
+    const current = stamps()[guestId];
     const next: StampState = current === '?' ? 'T' : current === 'T' ? 'L' : '?';
 
     setStamps({
       ...stamps(),
-      [guestId]: {
-        ...stamps()[guestId],
-        [day]: next,
-      },
+      [guestId]: next,
     });
   }
 
+  // Player must stamp every guest before doors unlock
+  const allStamped = () => Object.values(stamps()).every(s => s !== '?');
+
+  // Verify the stamped assignment is logically consistent with every statement.
+  // Dana: "Ken jujur" -> D === K
+  // Yumi: "pembohong > yang jujur" -> Y === (liars > honest)
+  // Marcus: "Ken bohong" -> M === !K
+  const isAnalysisConsistent = () => {
+    const K = stamps().ken === 'T';
+    const D = stamps().dana === 'T';
+    const Y = stamps().yumi === 'T';
+    const M = stamps().marcus === 'T';
+    const honest = [K, D, Y, M].filter(Boolean).length;
+    return D === K && Y === (4 - honest > honest) && M === !K;
+  };
+
   function handleChooseDoor(door: 'left' | 'right') {
+    if (!allStamped()) return;
     sound.playKeyClick();
     setSelectedDoor(door);
 
+    if (!isAnalysisConsistent()) {
+      sound.playError();
+      setFeedback('Analisis T/L-mu belum konsisten dengan semua kesaksian. Cek kembali stempel setiap tamu sebelum membuka pintu!');
+      return;
+    }
+
     if (door === 'left') {
       sound.playSuccess();
-      setFeedback('BENAR! Ken adalah orang yang jujur hari ini (Truth-teller), sehingga petunjuknya memilih Pintu Kiri adalah tepat!');
+      setFeedback('BENAR! Dari analisismu, Ken terbukti jujur hari ini, jadi klaimnya bahwa Pintu Kiri aman memang benar!');
       setShowExplanation(true);
       setTimeout(() => {
         completeStage(2);
       }, 1200);
     } else {
       sound.playError();
-      setFeedback('PILIHAN SALAH! Pintu kanan adalah jebakan. Cek kembali analisis logika ucapan Ken!');
+      setFeedback('PILIHAN SALAH! Analisismu konsisten, tapi kesimpulan pintunya keliru. Ken itu jujur — percayai klaimnya!');
     }
   }
 
@@ -97,7 +117,7 @@ export function Game2LogicPanel() {
           THE TWO DOORS & THE HONEST PANEL
         </h2>
         <p class="text-gray-400 text-sm max-w-xl mx-auto mt-1">
-          Setiap tamu bisa berkata jujur (T) atau bohong (L) di setiap harinya. Analisis kesaksian mereka untuk menentukan pintu mana yang aman!
+          Hari ini, setiap tamu berkata jujur (T) atau bohong (L). Analisis kesaksian mereka untuk menentukan pintu mana yang aman!
         </p>
       </div>
 
@@ -105,7 +125,7 @@ export function Game2LogicPanel() {
         {/* Left Column: Guest Cards */}
         <div class="lg:col-span-2 flex flex-col gap-3">
           <div class="p-3 bg-[#111726]/80 border border-cyber-border rounded-lg text-xs font-mono text-gray-300">
-            <span class="text-cyber-amber font-bold">ATURAN RUMAH:</span> Setiap orang bisa menjadi pembohong (L) atau jujur (T) setiap harinya. Kamu bisa mengetuk stempel [?] di bawah untuk menandai analisismu.
+            <span class="text-cyber-amber font-bold">ATURAN RUMAH:</span> Setiap tamu hari ini jujur (T) atau pembohong (L). Coba andaikan seseorang jujur atau bohong, lalu lihat apakah ucapan tamu lain jadi kontradiksi. Ketuk stempel [?] untuk menandai analisismu.
           </div>
 
           <For each={guests}>
@@ -132,34 +152,18 @@ export function Game2LogicPanel() {
                 {/* Stamping Controls */}
                 <div class="flex items-center gap-4 shrink-0 bg-[#0a0d14]/70 px-3 py-1.5 rounded-lg border border-gray-800">
                   <div class="flex flex-col items-center">
-                    <span class="text-[10px] text-gray-500 font-mono mb-1">KEMARIN</span>
-                    <button
-                      onClick={() => toggleStamp(guest.id, 'yesterday')}
-                      class={`w-8 h-8 rounded font-mono font-bold text-sm flex items-center justify-center border transition-all ${
-                        stamps()[guest.id].yesterday === 'T'
-                          ? 'bg-cyber-green/20 border-cyber-green text-cyber-green'
-                          : stamps()[guest.id].yesterday === 'L'
-                          ? 'bg-cyber-red/20 border-cyber-red text-cyber-red'
-                          : 'bg-gray-900 border-gray-700 text-gray-500'
-                      }`}
-                    >
-                      {stamps()[guest.id].yesterday}
-                    </button>
-                  </div>
-
-                  <div class="flex flex-col items-center">
                     <span class="text-[10px] text-gray-500 font-mono mb-1">HARI INI</span>
                     <button
-                      onClick={() => toggleStamp(guest.id, 'today')}
+                      onClick={() => toggleStamp(guest.id)}
                       class={`w-8 h-8 rounded font-mono font-bold text-sm flex items-center justify-center border transition-all ${
-                        stamps()[guest.id].today === 'T'
+                        stamps()[guest.id] === 'T'
                           ? 'bg-cyber-green/20 border-cyber-green text-cyber-green'
-                          : stamps()[guest.id].today === 'L'
+                          : stamps()[guest.id] === 'L'
                           ? 'bg-cyber-red/20 border-cyber-red text-cyber-red'
                           : 'bg-gray-900 border-gray-700 text-gray-500'
                       }`}
                     >
-                      {stamps()[guest.id].today}
+                      {stamps()[guest.id]}
                     </button>
                   </div>
                 </div>
@@ -176,10 +180,10 @@ export function Game2LogicPanel() {
             </span>
             <h3 class="text-sm font-mono font-bold text-white mb-2">THE GIVEAWAY</h3>
             <p class="text-xs text-gray-300 leading-relaxed">
-              Di atas panggung siaran langsung, <strong class="text-cyber-cyan">KEN</strong> mengklaim bahwa kamu sebaiknya memilih <strong class="text-yellow-400">PINTU KIRI (LEFT)</strong>.
+              Di atas panggung siaran langsung, <strong class="text-cyber-cyan">KEN</strong> mengklaim bahwa <strong class="text-yellow-400">PINTU KIRI (LEFT)</strong> adalah pintu yang aman.
             </p>
             <p class="text-xs text-gray-400 mt-2">
-              Pintu manakah yang harus kamu buka?
+              Tandai status T/L keempat tamu dengan stempel [?], lalu buka pintu yang aman!
             </p>
           </div>
 
@@ -188,10 +192,13 @@ export function Game2LogicPanel() {
             {/* Left Door */}
             <button
               onClick={() => handleChooseDoor('left')}
-              class={`group flex flex-col items-center p-3 rounded-xl border transition-all transform hover:-translate-y-1 ${
-                selectedDoor() === 'left'
-                  ? 'border-cyber-green bg-cyber-green/10 shadow-[0_0_20px_rgba(0,255,102,0.3)]'
-                  : 'border-cyber-border bg-[#0a0d14] hover:border-cyber-cyan'
+              disabled={!allStamped()}
+              class={`group flex flex-col items-center p-3 rounded-xl border transition-all transform ${
+                !allStamped()
+                  ? 'border-gray-800 bg-[#0a0d14] opacity-40 cursor-not-allowed'
+                  : selectedDoor() === 'left'
+                  ? 'border-cyber-green bg-cyber-green/10 shadow-[0_0_20px_rgba(0,255,102,0.3)] hover:-translate-y-1'
+                  : 'border-cyber-border bg-[#0a0d14] hover:border-cyber-cyan hover:-translate-y-1'
               }`}
             >
               <div class="w-20 h-32 rounded-t-lg border-2 border-gray-400 group-hover:border-cyber-cyan bg-gradient-to-b from-gray-800 to-gray-900 relative flex flex-col items-center p-2">
@@ -207,10 +214,13 @@ export function Game2LogicPanel() {
             {/* Right Door */}
             <button
               onClick={() => handleChooseDoor('right')}
-              class={`group flex flex-col items-center p-3 rounded-xl border transition-all transform hover:-translate-y-1 ${
-                selectedDoor() === 'right'
-                  ? 'border-cyber-red bg-cyber-red/10 shadow-[0_0_20px_rgba(255,51,102,0.3)]'
-                  : 'border-cyber-border bg-[#0a0d14] hover:border-gray-500'
+              disabled={!allStamped()}
+              class={`group flex flex-col items-center p-3 rounded-xl border transition-all transform ${
+                !allStamped()
+                  ? 'border-gray-800 bg-[#0a0d14] opacity-40 cursor-not-allowed'
+                  : selectedDoor() === 'right'
+                  ? 'border-cyber-red bg-cyber-red/10 shadow-[0_0_20px_rgba(255,51,102,0.3)] hover:-translate-y-1'
+                  : 'border-cyber-border bg-[#0a0d14] hover:border-gray-500 hover:-translate-y-1'
               }`}
             >
               <div class="w-20 h-32 rounded-t-lg border-2 border-gray-400 group-hover:border-gray-500 bg-gradient-to-b from-gray-800 to-gray-900 relative flex flex-col items-center p-2">
@@ -223,6 +233,13 @@ export function Game2LogicPanel() {
               </span>
             </button>
           </div>
+
+          {/* Lock hint while analysis is incomplete */}
+          <Show when={!allStamped()}>
+            <div class="text-[11px] font-mono text-gray-500 text-center -mt-3 mb-2">
+              🔒 Pintu terkunci — tandai status T/L keempat tamu terlebih dahulu
+            </div>
+          </Show>
 
           <Show when={feedback()}>
             <div class={`text-xs font-mono p-3 rounded-lg text-center leading-relaxed ${

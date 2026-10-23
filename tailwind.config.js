@@ -21,6 +21,8 @@ module.exports = {
       fontFamily: {
         mono: ['"Fira Code"', 'Consolas', 'Monaco', '"Courier New"', 'monospace'],
         display: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+        classic: ['"Palatino Linotype"', '"Book Antiqua"', 'Palatino', 'Georgia', '"Times New Roman"', 'serif'],
+        hand: ['Papyrus', '"Segoe Print"', '"Bradley Hand ITC"', '"Ink Free"', 'cursive'],
       },
       animation: {
         'pulse-fast': 'pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',

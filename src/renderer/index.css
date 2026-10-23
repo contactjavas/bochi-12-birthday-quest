@@ -144,6 +144,17 @@
   animation: doorOpenRight 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+/* Golden light bursting out of the sanctum door */
+@keyframes sanctumGlow {
+  0% { opacity: 0; transform: scale(0.55); }
+  30% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1.55); }
+}
+
+.anim-sanctum-glow {
+  animation: sanctumGlow 2.1s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
 /* Floating Party Elements */
 @keyframes floatUpGentle {
   0% { transform: translateY(0) rotate(0deg); opacity: 0.85; }
