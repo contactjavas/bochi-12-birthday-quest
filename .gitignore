@@ -4,6 +4,7 @@ node_modules/
 # Production builds
 dist/
 dist-electron/
+release/
 
 # Large CorelDraw Design files
 *.cdr
@@ -16,3 +17,6 @@ dist-electron/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Pre-extracted Electron dist for electron-builder
+electron-dist/

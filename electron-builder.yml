@@ -1,0 +1,36 @@
+appId: com.bochi.birthdayquest
+productName: Bochi Birthday Quest
+copyright: Copyright © 2026 Mama Ley
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**
+  - dist-electron/**
+  - package.json
+
+asar: true
+
+# Pre-extracted Electron 34.5.8 dist (workaround for Windows rename lock during unpack)
+electronDist: electron-dist
+
+win:
+  icon: build/icon.png
+  target:
+    - target: portable
+      arch: x64
+    - target: nsis
+      arch: x64
+
+portable:
+  artifactName: BochiBirthdayQuest-${version}-portable.exe
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: false
+  createStartMenuShortcut: true
+  shortcutName: Bochi Birthday Quest

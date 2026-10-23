@@ -63,20 +63,11 @@ export const CLUES_LIST: IClue[] = [
 
 const STORAGE_KEY = 'bochi_12_birthday_progress_v1';
 
+// Every app launch starts a fresh run (welcome screen -> stage 1).
+// Any stale save from a previous session is wiped instead of resumed.
 function loadSavedState() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      const stage = Number(parsed?.currentStage);
-      const completed = Array.isArray(parsed?.completedStages)
-        ? parsed.completedStages.filter((s: unknown) => Number.isInteger(s) && (s as number) >= 1 && (s as number) <= 8)
-        : [];
-      return {
-        currentStage: Number.isInteger(stage) && stage >= 1 && stage <= 8 ? stage : 1,
-        completedStages: completed as number[],
-      };
-    }
+    localStorage.removeItem(STORAGE_KEY);
   } catch {
     // ignore
   }

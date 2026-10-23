@@ -12,14 +12,17 @@
 - **Desktop Runtime**: **Electron**
   - Mode: Fullscreen Kiosk (`kiosk: true`, `fullscreen: true`, `alwaysOnTop: true`, `frame: false`).
   - Flags: `--autoplay-policy=no-user-gesture-required` untuk memastikan sound effects & BGM ambient berbunyi otomatis tanpa menunggu klik pertama.
-  - Windows Integration: Script PowerShell / Task Scheduler untuk pendaftaran trigger:
-    1. *At log on* (saat booting & login Windows).
-    2. *On workstation unlock* (Event ID 4801 / lock-unlock screen).
+  - Windows Integration: Task Scheduler task bernama `BochiBirthdayQuest`, trigger terikat SID user target (default: `Bochi`):
+    1. *At log on* (`LogonTrigger`, delay 5 detik agar shell/audio device siap).
+    2. *On workstation unlock* (`SessionStateChangeTrigger`, tanpa delay).
+    - Principal `InteractiveToken` → app hanya jalan di sesi user target; user lain tidak memicu game.
+    - `MultipleInstancesPolicy=IgnoreNew` → unlock saat game masih jalan tidak membuat instance baru.
 - **Frontend Framework**: **SolidJS** (Vite + TypeScript)
   - Menggunakan SolidJS untuk performa tinggi, fine-grained reactivity, dan bundle size ringan.
 - **Styling**: Tailwind CSS + Custom retro/cyber CRT scanline & glitch effect CSS.
 - **Audio Engine**: Howler.js / Web Audio API terintegrasi dengan Electron renderer process.
-- **State Management**: SolidJS Stores/Signals untuk state progression puzzle (persistent progress via local encrypted storage agar progres tidak hilang jika app restart).
+- **State Management**: SolidJS Stores/Signals (`src/renderer/stores/gameState.ts`).
+  - **Keputusan desain (disengaja)**: progres SELALU di-reset setiap app launch — `loadSavedState()` menghapus `localStorage` dan mulai dari stage 1, supaya tiap login Bochi mendapat pengalaman kejutan utuh. JANGAN "memperbaiki" ini menjadi resume-progress kecuali diminta user.
 
 ---
 
@@ -27,24 +30,27 @@
 ```text
 ultah-12-bochi/
 ├── .windsurfrules               # Project-level rules (dokumen ini)
+├── electron-builder.yml         # Konfig packaging (appId, icon, target win)
 ├── scripts/
-│   ├── install-autostart.ps1   # Script otomatisasi Windows Task Scheduler
-│   └── uninstall-autostart.ps1 # Script pembersihan autostart
+│   ├── install-autostart.ps1   # Daftarkan task scheduler (self-elevate, param -UserName/-NoDeploy)
+│   ├── uninstall-autostart.ps1 # Hapus task (+ -RemoveFiles untuk bersihkan instalasi)
+│   ├── deploy.ps1              # Rebuild + redeploy unpacked ke lokasi autostart
+│   └── setup-electron.js       # Workaround extract manual electron dist
+├── build/
+│   └── icon.png                # Icon aplikasi (dari images/monogram-b.png)
+├── electron-dist/              # Pre-extracted Electron dist (workaround EPERM rename di mesin ini)
+├── release/                    # Output electron-builder (win-unpacked/, portable exe, nsis installer)
 ├── src/
 │   ├── main/                   # Electron Main Process
-│   │   ├── index.ts            # Window creation, kiosk config, IPC handlers
-│   │   └── autostart.ts        # Helper registry/task scheduler
+│   │   └── index.ts            # Window creation, kiosk config, IPC handlers
 │   ├── preload/                # Electron Preload Scripts
-│   │   └── index.ts            # Context bridge aman (audio triggers, exit bridge)
+│   │   └── index.ts            # Context bridge aman (exitApp, toggleFullscreen)
 │   └── renderer/               # SolidJS Frontend
 │       ├── assets/             # Audio (SFX, ambient BGM), fonts, scanlines
-│       ├── components/         # Terminal, CRTOverlay, TextStreamer, PromptInput
-│       ├── puzzles/            # Modul logika puzzle (math, logic, ciphers)
-│       │   ├── level1_boot/
-│       │   ├── level2_math/
-│       │   ├── level3_cipher/
-│       │   └── level4_final/
-│       ├── stores/             # State puzzle & audio status
+│       ├── components/         # LandingPage, ClueModal, InventoryDrawer, dll
+│       ├── puzzles/            # 8 stage puzzle: Game1Robus ... Game8Finale
+│       ├── stores/             # gameState.ts (stage progress, selalu reset tiap launch)
+│       ├── utils/              # sound.ts (audio engine)
 │       ├── App.tsx
 │       └── index.tsx
 ├── package.json
@@ -75,3 +81,19 @@ ultah-12-bochi/
 - **Keyboard-First Interface**: Semua kontrol game harus bisa dimainkan menggunakan keyboard (Enter, Tab, Arrow Keys, typing commands) selayaknya terminal sungguhan.
 - **Fail-safe & Developer Bypass**:
   - Meskipun pengguna akhir (Bochi) harus menyelesaikan puzzle untuk menutup layar, sediakan environment variable / dev shortcut rahasia (misal kombinasi khusus dengan hash validation) hanya untuk keperluan testing pengembang.
+  - Dev escape saat ini: `Ctrl+Shift+Alt+X` (registered di `src/main/index.ts` via `globalShortcut`).
+
+---
+
+## 6. Build, Packaging & Deployment
+- **Package manager**: `pnpm` (bukan npm — ada `pnpm-workspace.yaml` dengan `allowBuilds` untuk electron/esbuild).
+- **PENTING — snapshot deployment**: versi yang berjalan saat login Bochi adalah copy di `C:\ProgramData\BochiBirthdayQuest\app\` (unpacked). Perubahan di `src/` TIDAK otomatis berefek — wajib redeploy:
+  - `pnpm run deploy` → build (vite + tsc) + `electron-builder --dir` + copy `release\win-unpacked` → `C:\ProgramData\BochiBirthdayQuest\app\` (self-elevate kalau instance game sedang jalan di sesi lain).
+- Script lain:
+  - `pnpm run build` → compile saja (`dist/` + `dist-electron/`).
+  - `pnpm run dist` / `dist:portable` / `dist:nsis` → full package (portable exe / installer, output ke `release/`). Tidak dipakai untuk autostart — hanya untuk distribusi.
+  - `pnpm start` → jalankan `electron .` (dev-run hasil build).
+- **Catatan environment mesin ini**:
+  - `ELECTRON_RUN_AS_NODE=1` ter-set di shell → semua binary Electron jalan sebagai Node dan langsung exit. Untuk test manual: `env -u ELECTRON_RUN_AS_NODE <exe>` atau unset dulu.
+  - Rename folder hasil ekstraksi sering kena EPERM (lock) → `electron-builder.yml` memakai `electronDist: electron-dist` (dist Electron 34.5.8 yang sudah terekstrak permanen).
+  - `node_modules/electron/dist` harus terisi manual (lihat `scripts/setup-electron.js` + `path.txt`) karena postinstall extraction juga kena masalah yang sama.
