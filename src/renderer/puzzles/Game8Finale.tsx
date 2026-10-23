@@ -210,7 +210,7 @@ export function Game8Finale() {
             <div class="relative flex flex-col items-center">
               <div class="relative h-[68vh] max-h-[700px] min-h-[420px]">
                 <img
-                  src="/images/door.png"
+                  src="images/door.png"
                   alt="Pintu Sanctum"
                   draggable={false}
                   class={`h-full w-auto drop-shadow-[0_0_45px_rgba(217,145,42,0.35)] transition-all duration-[2200ms] ${
@@ -356,14 +356,14 @@ export function Game8Finale() {
         <div
           class="fixed inset-0 z-40 flex flex-col items-center justify-center text-center px-6 pb-24 animate-fadeIn"
           style={{
-            'background-image': "url('/images/background-end.png')",
+            'background-image': "url('images/background-end.png')",
             'background-size': '100% 100%',
             'background-position': 'center',
           }}
         >
           {/* Golden B Monogram */}
           <img
-            src="/images/monogram-b.png"
+            src="images/monogram-b.png"
             alt="Monogram B"
             draggable={false}
             class="h-28 sm:h-36 w-auto drop-shadow-[0_6px_24px_rgba(212,164,55,0.55)] mb-2 animate-scaleUp"

@@ -24,7 +24,7 @@ export function PapyrusModal(props: PapyrusModalProps) {
         <div
           class="relative animate-scaleUp select-none h-[88vh] max-h-[840px] max-w-[94vw] aspect-[513/598] drop-shadow-[0_20px_50px_rgba(0,0,0,0.85)]"
           style={{
-            'background-image': "url('/images/papyrus.png')",
+            'background-image': "url('images/papyrus.png')",
             'background-size': '100% 100%',
             'background-position': 'center',
             'background-repeat': 'no-repeat',
@@ -45,7 +45,7 @@ export function PapyrusModal(props: PapyrusModalProps) {
             {/* Golden B Monogram — the letterhead seal at the top center */}
             <div class="flex justify-center shrink-0">
               <img
-                src="/images/monogram-b.png"
+                src="images/monogram-b.png"
                 alt="Monogram B"
                 draggable={false}
                 class="h-24 sm:h-28 w-auto drop-shadow-[0_2px_8px_rgba(90,55,10,0.45)]"

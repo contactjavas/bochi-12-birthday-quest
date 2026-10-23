@@ -22,7 +22,7 @@ export function RolledPapyrusButton(props: RolledPapyrusButtonProps) {
 
       {/* Golden B Monogram Seal overlaying the scroll center */}
       <img
-        src="/images/monogram-b.png"
+        src="images/monogram-b.png"
         alt="Segel Monogram B"
         draggable={false}
         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 sm:w-16 h-auto z-10 pointer-events-none drop-shadow-[0_2px_8px_rgba(120,72,10,0.6)]"
