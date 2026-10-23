@@ -79,6 +79,7 @@ ultah-12-bochi/
 - **Autoplay Sound Guarantees**: Seluruh audio cue (keystroke sound, error buzzer, ambient drone, success fanfare) harus dimuat di memory renderer dengan fallback handling.
 - **Strict Typing**: Seluruh interaksi IPC antara Main dan Renderer wajib memiliki TypeScript interface yang jelas di `src/preload`.
 - **Keyboard-First Interface**: Semua kontrol game harus bisa dimainkan menggunakan keyboard (Enter, Tab, Arrow Keys, typing commands) selayaknya terminal sungguhan.
+- **Asset Paths — NO absolute `/...` URLs**: App di-load via `file://` di production, jadi path absolut (`/images/x.png`) resolve ke root filesystem dan gambar HILANG tanpa error (di dev kelihatan normal, jebakan). Wajib: path relatif (`images/x.png`) untuk asset `public/`, atau import dari `src/assets/` supaya Vite me-bundle-nya.
 - **Fail-safe & Developer Bypass**:
   - Meskipun pengguna akhir (Bochi) harus menyelesaikan puzzle untuk menutup layar, sediakan environment variable / dev shortcut rahasia (misal kombinasi khusus dengan hash validation) hanya untuk keperluan testing pengembang.
   - Dev escape saat ini: `Ctrl+Shift+Alt+X` (registered di `src/main/index.ts` via `globalShortcut`).
