@@ -29,12 +29,19 @@ function createWindow() {
     // mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'));
+
+    // Block Alt+F4 / window close in production - game only exits via
+    // finishing the quest or the developer escape shortcut.
+    mainWindow.on('close', (e) => {
+      e.preventDefault();
+    });
   }
 
   // Developer escape shortcut (Ctrl+Shift+Alt+X)
+  // app.exit(0) bypasses the blocked 'close' event entirely.
   globalShortcut.register('CommandOrControl+Shift+Alt+X', () => {
     console.log('Developer escape triggered');
-    app.quit();
+    app.exit(0);
   });
 
   mainWindow.on('closed', () => {
@@ -46,7 +53,7 @@ app.whenReady().then(() => {
   createWindow();
 
   ipcMain.on('app:exit', () => {
-    app.quit();
+    app.exit(0);
   });
 
   ipcMain.on('app:toggle-fullscreen', () => {
