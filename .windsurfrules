@@ -82,6 +82,7 @@ ultah-12-bochi/
 - **Fail-safe & Developer Bypass**:
   - Meskipun pengguna akhir (Bochi) harus menyelesaikan puzzle untuk menutup layar, sediakan environment variable / dev shortcut rahasia (misal kombinasi khusus dengan hash validation) hanya untuk keperluan testing pengembang.
   - Dev escape saat ini: `Ctrl+Shift+Alt+X` (registered di `src/main/index.ts` via `globalShortcut`).
+  - **Alt+F4 sengaja diblokir** di production (`close` event → `preventDefault`). Semua jalur keluar yang sah memakai `app.exit(0)` (bukan `app.quit()`) karena harus bypass blokir tersebut — jalur: dev escape + IPC `app:exit` dari finale. JANGAN kembalikan ke `app.quit()` atau hapus blokirnya kecuali diminta user.
 
 ---
 
