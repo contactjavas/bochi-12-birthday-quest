@@ -56,8 +56,8 @@ export const CLUES_LIST: IClue[] = [
     stage: 7,
     id: 'clue-7',
     title: 'Relic 7',
-    clueText: 'organic shape',
-    icon: '🌿',
+    clueText: 'starry sphere',
+    icon: '⭐',
   },
 ];
 
